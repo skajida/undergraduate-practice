@@ -21,7 +21,8 @@ std::vector<TPolynomial> generateZeroBasis(uint32_t dimension) {
     );
 
     std::vector<TPolynomial> result;
-    result.reserve(binpow(3, dimension) - binpow(2, dimension));
+    result.reserve(binpow(4, dimension) - binpow(3, dimension));
+    // result.reserve(binpow(3, dimension) - binpow(2, dimension));
     for (uint32_t i = 0; i < dimension; ++i) {
         for (uint32_t j = 0; j < dimension - i; ++j) {
             //

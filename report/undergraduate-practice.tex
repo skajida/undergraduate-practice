@@ -3,6 +3,7 @@
 \usepackage[english,russian]{babel}
 \usepackage{geometry}
 \usepackage{cmap}
+\usepackage{amsmath}
 
 \geometry{a4paper,left=30mm,top=30mm,bottom=30mm,right=30mm}
 
@@ -50,7 +51,7 @@
     \item асимптотически лучшая верхняя оценка на количество конъюнктов ($ 29 \cdot 2^{n - 7}, \ n > 6 $~\cite{bound} против $ 2^{n - 1} $ для ДНФ)
 \end{itemize}
 
-В задаче нахождения точного минимума обобщеных полиномов до сих пор не найдено эффективного решения для булевых функций более шести переменных в общем случае~\cite{exact}, поэтому особый интерес представляет эвристический подход к минимизации обобщенных полиномов.
+В задаче нахождения точного минимума обобщенных полиномов до сих пор не найдено эффективного решения для булевых функций более шести переменных в общем случае~\cite{exact}, поэтому особый интерес представляет эвристический подход к минимизации обобщенных полиномов.
 
 Также, помимо рассмотрения самих алгоритмов, интересны способы их тестирования и сравнения. Большинство статей~\cite{exmin2}~\cite{mint}~\cite{exorcism4}, предлагающих эвристические подходы к решению данной задачи, содержат в себе раздел, посвященный результатам экспериментов, в котором используется много функций из бенчмарка LGSynth~\cite{benchmark}.
 
@@ -92,19 +93,125 @@
 
 % В этом разделе подробно описываются результаты, полученные в рамках практики.
 
+\subsection*{Обзор}
+
+\subsubsection*{Некоторые опубликованные эвристические подходы}
+
+В 1993 году Цутому Сасао представил алгоритм, названный {\sc EXMIN2}~\cite{exmin2}.
+
+В статье подробно рассказано про 8 правил преобразования (с иллюстрациями на карте Карно), которые задействуются в алгоритме. Сам алгоритм
+~\\
+1996 MINT~\cite{mint}\\
+1996 GRMIN2~\cite{grmin2}\\
+2001 EXORCISM4~\cite{exorcism4}\\
+2008 min-tau2~\cite{min-tau2}
+
+\subsubsection*{Часто встречаемые бенчмарки}
+
+В подавляющем большинстве статей, посвященных эвристическим методам минимизации обобщенных полиномов, фигурируют следующие функции для сравнения алгоритмов:
+\begin{itemize}
+    \item single-output функции из бенчмарка LGSynth
+    \item multi-output функции из бенчмарка LGSynth
+    \item multi-output арифметические функции
+\end{itemize}
+
+{\bf LGSynth.}
+LGSynth --- бенчмарк, разработанный для логического синтеза и оптимизации, использовался совместно с MCNC International Workshop. Тестируемые функции хранятся в файлах разрешений \texttt{*.pla}, \texttt{*.blif}, также к ним есть документация~\cite{benchmark}.
+
+Основная масса функций из этого бенчмарка, появляющихся в статьях в качестве тестов, является multi-output. Примеры названий функций: \texttt{9sym} (single-output), \texttt{5xp1} (multi-output), \texttt{clip}.
+
+{\bf Arithmetic functions.} Арифметические функции --- multi-output функции, опишем некоторые из них.\\
+\texttt{adr}$ n $ --- $ n $-битный сумматор без входа для бита переноса.\\
+\texttt{inc}$ n $ инкрементирует $ n $-битное число.\\
+\texttt{wgt}$ n $ считает количество возведенных в единицу битов $ n $-битного числа.
+
+Ниже представлена таблица, формулами описывающее поведение используемых в тестах арифметических функций $ n $ переменных ($ A,\ B \in B^n $).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ |c||c|c||c|c|c|c|c| }
+\hline
+{\bf name}   & \texttt{\bf in} & \texttt{\bf out}       & {\bf function} \\
+\hline\hline
+\texttt{adr} & $ 2 n $ & $ n + 1 $                      & $ A + B $ \\
+\hline
+\texttt{inc} & $ n $   & $ n + 1 $                      & $ A + 1 $ \\
+\hline
+\texttt{log} & $ n $   & $ n $                          & $ \frac{2^n - 1}{n} \times \log_2 (A + 1) $ \\
+\hline
+\texttt{mlp} & $ 2 n $ & $ 2 n $                        & $ A \times B $ \\
+\hline
+\texttt{nrm} & $ 2 n $ & $ n + 1 $                      & $ \sqrt{A^2 + B^2} + 0.5 $ \\
+\hline
+\texttt{rdm} & $ n $   & $ n $                          & $ (5 A + 1) \mod 2^n $ \\
+\hline
+\texttt{rot} & $ n $   & $ \lceil n / 2 \rceil $        & $ \lfloor \sqrt{A} + 0.5 \rfloor $ \\
+\hline
+\texttt{sqr} & $ n $   & $ 2 n $                        & $ A^2 $ \\
+\hline
+\texttt{wgt} & $ n $   & $ \lceil \log_2 n \rceil + 1 $ & $ \sum\limits_{i = 1}^n a_i $ \\
+\hline
+\end{tabular}
+\caption{Арифметические операции}
+\label{table_arithmetic}
+\end{table}
+
+Представим таблицу с результатами (указаны количества конъюнктов по окончании работы) минимизации некоторых функций опубликованными эвристическими алгоритмами.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ |c||c|c||c|c|c|c|c| }
+\hline
+{\bf benchmark} & \texttt{\bf in} & \texttt{\bf out} & {\sc EXORCISM4} & {\sc GRMIN2} & {\sc MINT} & {\sc EXMIN2} & \texttt{min-tau2} \\
+\hline\hline
+\texttt{9sym}   & 9  & 1  & 51 & 51 & 51 & 53 & – \\
+\hline
+\texttt{life}   & 9  & 1  & 48 & 49 & 51 & 54 & – \\
+\hline
+\texttt{ryy6}   & 16 & 1  & 40 & –  & 40 & 40 & – \\
+\hline
+\texttt{sym10}  & 10 & 1  & 79 & 82 & 82 & 84 & – \\
+\hline\hline
+\texttt{5xp1}   & 7  & 10 & 31 & 32 & 32 & 34 & – \\
+\hline
+\texttt{clip}   & 9  & 5  & 63 & 67 & 64 & 68 & – \\
+\hline
+\texttt{m181}   & 15 & 9  & 29 & 29 & 29 & 29 & – \\
+\hline\hline
+\texttt{adr4}   & 8  & 5  & –  & 31 & –  & –  & – \\
+\hline
+\texttt{log8}   & 8  & 8  & –  & 96 & –  & –  & – \\
+\hline
+\texttt{mlp3}   & 6  & 6  & –  & –  & –  & 18 & 18 \\
+\hline
+\texttt{sqrt8}  & 8  & 4  & 17 & –  & –  & –  & 17 \\
+\hline
+\texttt{inc8}   & 8  & 9  & –  & 15 & –  & –  & 15 \\
+\hline
+\end{tabular}
+\caption{Результаты некоторых алгоритмов по минимизации}
+\label{table_benchmark}
+\end{table}
+
+
 \section{План дальнейших работ}
 
 % В этом разделе приводится развернутый план работы в следующем семестре (в рамках ВКР).
 
+-
+
 \begin{raggedright}
 \addcontentsline{toc}{section}{Литература}
 \begin{thebibliography}{99}
-    \bibitem{exorcism4} Mishchenko~A., Perkowski~M. Fast heuristic minimization of exclusive-sums-of-products, 2001.
-    \bibitem{bound} Gaidukov~A. Algorihm to derive minimum esop for 6-variable function.\\5th International Workshop on Boolean Problems, 2002.
-    \bibitem{exact} Sasao~T. An exact minimization of AND-EXOR expressions using reduced covering functions.\\Proc. of the Synthesis and Simulation Meeting and International Interchange, 1993.
-    \bibitem{exmin2} Sasao~T. EXMIN2: A simplification algorithm for exclusive-OR-sum-of-products expressions for multiple-valued-input two-valued-output functions.\\IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems 12.5, 1993: 621-632.
-    \bibitem{mint} Kozlowski~T. Application of exclusive-OR logic in technology independent logic optimization.\\PhD Thesis, Bristol University, 1996.
-    \bibitem{benchmark} Yang~S. Logic synthesis and optimization benchmarks user guide: version 3.0.\\Research Triangle Park, NC, USA: Microelectronics Center of North Carolina (MCNC), 1991.
+    \bibitem{exorcism4} Mishchenko~A., Perkowski~M. Fast heuristic minimization of exclusive-sums-of-products. – 2001.
+    \bibitem{bound} Gaidukov~A. Algorihm to derive minimum ESOP for 6-variable function //5th International Workshop on Boolean Problems, Sept.~2002. – 2002.
+    \bibitem{exact} Sasao~T. An exact minimization of AND-EXOR expressions using reduced covering functions //Proc. of the Synthesis and Simulation Meeting and International Interchange. – 1993. – С.~374-383.
+    \bibitem{exmin2} Sasao~T. EXMIN2: A simplification algorithm for exclusive-OR-sum-of-products expressions for multiple-valued-input two-valued-output functions //IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems. – 1993. – Т.~12. – №.~5. – С.~621-632.
+    \bibitem{mint} Kozlowski~T. Application of exclusive-OR logic in technology independent logic optimization //PhD Thesis, Bristol University. – 1996.
+    \bibitem{benchmark} Yang~S. Logic synthesis and optimization benchmarks user guide: version 3.0. – Research Triangle Park, NC, USA : Microelectronics Center of North Carolina (MCNC), 1991. – С.~502-508.
+    \bibitem{grmin2} Debnath~D., Sasao~T. GRMIN2: A heuristic simplification algorithm for generalised Reed-Muller expressions //IEE Proceedings-Computers and Digital Techniques. – 1996. – Т.~143. – №.~6. – С.~376-384.
+    \bibitem{min-tau2} Hirayama~T., Nishitani~Y. Exact minimization of and–exor expressions of practical benchmark functions //Journal of Circuits, Systems, and Computers. – 2009. – Т.~18. – №.~03. – С.~465-486.
+    \bibitem{arithmetic} Sasao~T. Multiple-valued logic and optimization of programmable logic arrays //Computer. – 1988. – Т.~21. – №.~4. – С.~71-80.
 \end{thebibliography}
 \end{raggedright}
 
