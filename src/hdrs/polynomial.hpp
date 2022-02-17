@@ -6,8 +6,8 @@ class TPolynomial {
     using const_iterator = std::vector<TElementaryConjuction>::const_iterator;
     using iterator = std::vector<TElementaryConjuction>::iterator;
 private:
-    const uint32_t dimension;
-    std::vector<TElementaryConjuction> polynomial;
+    const uint32_t dim_;
+    std::vector<TElementaryConjuction> polynomial_;
 
     iterator begin() noexcept;
     iterator end() noexcept;
@@ -32,6 +32,9 @@ public:
 
     const_iterator begin() const noexcept;
     const_iterator end() const noexcept;
+
+    uint32_t dimension() const noexcept;
+    uint32_t size() const noexcept;
 
     friend std::istream& operator>>(std::istream&, TPolynomial&);
     friend std::ostream& operator<<(std::ostream&, const TPolynomial&);

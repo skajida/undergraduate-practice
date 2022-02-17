@@ -8,9 +8,9 @@ class TElementaryConjuction {
     using const_iterator = std::vector<TVariable>::const_iterator;
     using iterator = std::vector<TVariable>::iterator;
 private:
-    const uint32_t dimension;
-    std::vector<TVariable> conjuction;
-    mutable bool excess;
+    const uint32_t dim_;
+    std::vector<TVariable> conjuction_;
+    mutable bool excess_;
 
     iterator begin() noexcept;
     iterator end() noexcept;

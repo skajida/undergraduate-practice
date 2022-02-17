@@ -14,73 +14,73 @@ int32_t binpow(int32_t base, int32_t exp) {
    return res;
 }
 
-std::vector<TPolynomial> generateZeroBasis(uint32_t dimension) {
+std::vector<TPolynomial> generateZeroBasis(uint32_t dimension, EMode expand) {
     TPolynomial multiplierOne(
         dimension,
         { TElementaryConjuction(dimension, { { 0, EState::Positive } }) }
     );
 
     std::vector<TPolynomial> result;
-    result.reserve(binpow(4, dimension) - binpow(3, dimension));
-    // result.reserve(binpow(3, dimension) - binpow(2, dimension));
+    if (expand == EMode::Negative) {
+        result.reserve(binpow(4, dimension) - binpow(3, dimension));
+    } else {
+        result.reserve(binpow(3, dimension) - binpow(2, dimension));
+    }
     for (uint32_t i = 0; i < dimension; ++i) {
         for (uint32_t j = 0; j < dimension - i; ++j) {
-            //
-            for (uint32_t l = 0; l < dimension - i - j; ++l) {
-            std::vector<EMode> permutation;
-            permutation.reserve(dimension);
-            auto back_insert_iterator = std::back_inserter(permutation);
-            std::fill_n(back_insert_iterator, i + 1, EMode::Zero);
-            std::fill_n(back_insert_iterator, dimension - i - 1 - j/* - l*/ - l, EMode::One);
-            std::fill_n(back_insert_iterator, j, EMode::Positive);
-            //
-            std::fill_n(back_insert_iterator, l, EMode::Negative);
-            do {
-                TPolynomial polynomial(
-                    dimension,
-                    { TElementaryConjuction(dimension, { { 0, EState::Positive } }) }
-                );
-
-                for (uint32_t k = 0; k < dimension; ++k) {
-                    TPolynomial multiplierZero(
-                        dimension,
-                        {
-                            TElementaryConjuction(dimension, { { 0, EState::Positive } }),
-                            TElementaryConjuction(dimension, { { k + 1, EState::Positive } }),
-                            TElementaryConjuction(dimension, { { k + 1, EState::Negative } })
-                        }
-                    );
-                    TPolynomial multiplierPositive(
-                        dimension,
-                        { TElementaryConjuction(dimension, { { k + 1, EState::Positive } }) }
-                    );
-                    //
-                    TPolynomial multiplierNegative(
-                        dimension,
-                        { TElementaryConjuction(dimension, { { k + 1, EState::Negative } }) }
-                    );
-
-                    switch (permutation[k]) {
-                    case EMode::Zero:
-                        polynomial = polynomial * multiplierZero;
-                        break;
-                    case EMode::One:
-                        polynomial = polynomial * multiplierOne;
-                        break;
-                    case EMode::Positive:
-                        polynomial = polynomial * multiplierPositive;
-                        break;
-                    //
-                    case EMode::Negative:
-                        polynomial = polynomial * multiplierNegative;
-                        break;
-                    default:
-                        break;
-                    }
+            for (uint32_t l = 0; l < (expand == EMode::Negative ? dimension - i - j : 1); ++l) {
+                std::vector<EMode> permutation;
+                permutation.reserve(dimension);
+                auto back_insert_iterator = std::back_inserter(permutation);
+                std::fill_n(back_insert_iterator, i + 1, EMode::Zero);
+                std::fill_n(back_insert_iterator, dimension - i - 1 - j - (expand == EMode::Negative) * l, EMode::One);
+                std::fill_n(back_insert_iterator, j, EMode::Positive);
+                if (expand == EMode::Negative) {
+                    std::fill_n(back_insert_iterator, l, EMode::Negative);
                 }
-                result.push_back(std::move(polynomial));
-            } while (std::next_permutation(permutation.begin(), permutation.end()));
-            //
+                do {
+                    TPolynomial polynomial(
+                        dimension,
+                        { TElementaryConjuction(dimension, { { 0, EState::Positive } }) }
+                    );
+
+                    for (uint32_t k = 0; k < dimension; ++k) {
+                        TPolynomial multiplierZero(
+                            dimension,
+                            {
+                                TElementaryConjuction(dimension, { { 0, EState::Positive } }),
+                                TElementaryConjuction(dimension, { { k + 1, EState::Positive } }),
+                                TElementaryConjuction(dimension, { { k + 1, EState::Negative } })
+                            }
+                        );
+                        TPolynomial multiplierPositive(
+                            dimension,
+                            { TElementaryConjuction(dimension, { { k + 1, EState::Positive } }) }
+                        );
+                        TPolynomial multiplierNegative(
+                            dimension,
+                            { TElementaryConjuction(dimension, { { k + 1, EState::Negative } }) }
+                        );
+
+                        switch (permutation[k]) {
+                        case EMode::Zero:
+                            polynomial = polynomial * multiplierZero;
+                            break;
+                        case EMode::One:
+                            polynomial = polynomial * multiplierOne;
+                            break;
+                        case EMode::Positive:
+                            polynomial = polynomial * multiplierPositive;
+                            break;
+                        case EMode::Negative:
+                            polynomial = polynomial * multiplierNegative;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                    result.push_back(std::move(polynomial));
+                } while (std::next_permutation(permutation.begin(), permutation.end()));
             }
         }
     }

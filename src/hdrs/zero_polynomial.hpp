@@ -11,4 +11,4 @@ enum class EMode {
 
 int32_t binpow(int32_t base, int32_t exp);
 
-std::vector<TPolynomial> generateZeroBasis(uint32_t dimension);
+std::vector<TPolynomial> generateZeroBasis(uint32_t dimension, EMode expand=EMode::Positive);
