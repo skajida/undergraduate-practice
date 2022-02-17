@@ -66,7 +66,7 @@
 \subsubsection*{Возможные улучшения метода}
 
 \begin{enumerate}
-    \item Построение базиса на множестве $ \{ 0, 1, x_i, \overline{x_i} \} $, что увеличит количество элементов до $ 4^n - 3^n $ (рассуждения из выведения оценки для базиса, построенного на множестве $ \{ 0, 1, x_i \} $, повторяются). Это негативно скажется на времени работы программы, но также может дать улучшение финальных результатов (получение более коротких полиномов).
+    \item Построение базиса на множестве $ \{ 0, 1, x_i, \overline x_i \} $, что увеличит количество элементов до $ 4^n - 3^n $ (рассуждения из выведения оценки для базиса, построенного на множестве $ \{ 0, 1, x_i \} $, повторяются). Это негативно скажется на времени работы программы, но также может дать улучшение финальных результатов (получение более коротких полиномов).
     \item Изменение стратегии обхода элементов базиса в попытках сократить полином. Может привести к другому, потенциально лучшему, результату.
     \item Прибавление пар элементов базиса. Пара элементов может частично сократиться друг с другом, после чего результат может сократить исходный полином.
 \end{enumerate}
@@ -78,9 +78,9 @@
 Проанализировать предложенный метод следующими критериями:
 \begin{itemize}
     \item существование не оптимизирующихся полиномов, которые могут быть записаны в более коротком виде
-    \item возможность улучшить результат путем прибавления пар элементов базиса
     \item возможность улучшить результат путем расширения базиса нулевых полиномов
     \item возможность улучшить результат путем пробы разных стратегий прибавления элементов базиса
+    \item возможность улучшить результат путем прибавления пар элементов базиса
 \end{itemize}
 
 \section{Полученные результаты}
@@ -119,7 +119,7 @@
 Замечанием к алгоритму служит следующий приоритет: при любом xlinking-е при прочих равных выбирается пара, применяемая к конъюнктам, содержащим большее количество литералов (в статье это называется степенью конъюнкта). Улучшения в \textsc{EXORCISM4} коснулись вычисления начального покрытия, увеличение пространства поиска с помощью применения большего числа трансформаций. Преимуществом является быстродействие и хороший (в сравнении с другими алгоритмами \cite{exmin2} \cite{mint}) результат сокращения.
 
 В 2008 публикуют алгоритм минимизации обобщенных полиномов min-tau2 \cite{min-tau2} Японские ученые.
-Особенность алгоритма в том, что его наивная реализация подразумевает полный перебор комбинаций конъюнктов, что гарантирует нахождения оптимального решения, но при этом является крайне трудоемкой. Однако с помощью представленные в \cite{min-tau} теоремы позволяют значительно сократить время работы алгоритма \texttt{min-tau}, что дает возможность находить решения для функций от 6 переменных на практике. \texttt{min-tau2} же, в свою очередь ускоряет процедуру поиска, что являлось узким местом ориинального алгоритма. Метод находит точный минимум большого количества бенчмарк-функций.
+Особенность алгоритма в том, что его наивная реализация подразумевает полный перебор комбинаций конъюнктов, что гарантирует нахождения оптимального решения, но при этом является крайне трудоемкой. Однако с помощью представленные в \cite{min-tau} теоремы позволяют значительно сократить время работы алгоритма \texttt{min-tau}, что дает возможность находить решения для функций от 6 переменных на практике. \texttt{min-tau2} же, в свою очередь ускоряет процедуру поиска, что являлось узким местом оригинального алгоритма. Метод находит точный минимум большого количества бенчмарк-функций.
 
 \subsubsection*{Часто встречаемые бенчмарки}
 
@@ -240,11 +240,121 @@ LGSynth --- бенчмарк, разработанный для логическ
 
 \subsection{Минимизация полиномов методом покоординатного спуска}
 
-% результаты
+\subsubsection*{Существование не оптимизируемых полиномов}
+
+В процессе тестирования программы были найдены не оптимизируемые данным методом полиномы, которые, тем не менее, удалось обнаружить в более короткой форме. Примерами таких полиномов могут стать:
+\begin{enumerate}
+    \item $ x_1 x_2 x_3 \overline x_4 \oplus x_1 x_2 x_3 \overline x_5 \oplus x_1 x_2 \overline x_3 x_4 \oplus x_1 \overline x_2 x_3 x_5 $
+    \item $ x_4 x_5 \oplus x_1 x_2 x_3 x_4 \oplus x_1 x_2 x_4 x_5 \oplus x_1 \overline x_2 \overline x_3 x_4 \oplus x_1 x_3 x_4 x_5 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 \oplus x_2 x_3 x_4 x_5 \oplus \overline x_2 \overline x_3 x_4 x_5 $
+    \item $ x_1 x_2 x_4 \overline x_5 \oplus \overline x_2 \overline x_3 x_4 \overline x_5 \oplus \overline x_1 x_2 x_3 x_4 x_5 \oplus \overline x_1 x_2 x_3 x_4 \overline x_6 \oplus x_2 x_3 x_4 \overline x_5 x_6 \oplus x_1 x_2 x_3 x_4 x_5 x_6 \oplus x_1 x_2 x_3 x_4 \overline x_5 \overline x_6 $
+\end{enumerate}
+
+Ни один из этих полиномов не сокращается ни одним из, в том числе описанных ниже, методов. Однако они представимы соответственно в более коротких формах:
+\begin{enumerate}
+    \item $ x_1 x_2 x_4 \oplus x_1 x_3 x_5 $
+    \item $ x_1 x_2 x_4 \oplus x_1 \overline x_3 x_4 \oplus \overline x_1 x_2 x_4 x_5 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 \oplus \overline x_1 x_3 x_4 x_5 $
+    \item $ x_1 x_2 x_4 \overline x_5 \oplus x_2 x_3 x_4 x_6 \oplus \overline x_2 \overline x_3 x_4 \overline x_5 \oplus x_2 x_3 x_4 \overline x_5 \overline x_6 $
+\end{enumerate}
+
+\subsubsection*{Расширение базиса нулевых полиномов}
+
+Генерация базиса нулевых полиномов на множестве $ \{ 0, 1, x_i, \overline x_i \} $, как говорилось выше, приводит к увеличению его мощности с $ \left| 3^n - 2^n \right| $ до $ \left| 4^n - 3^n \right| $. Использование расширенного базиса позволило добиться лучшего результата на нескольких тестах. Входные данные сокращаемых полиномов выглядят так:
+\begin{enumerate}
+    \item $ x_1 \oplus x_2 \oplus x_3 \oplus \overline x_1 x_2 \oplus \overline x_1 \overline x_3 \oplus \overline x_2 \overline x_3 \oplus x_1 \overline x_2 x_3 \oplus \overline x_1 \overline x_2 \overline x_3 $
+    \item $ \overline x_2 \overline x_4 \oplus x_1 \overline x_2 x_3 \oplus x_1 x_3 \overline x_4 \oplus \overline x_1 \overline x_3 \overline x_4 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 \overline x_3 \overline x_4 \oplus x_1 x_2 x_3 x_4 \oplus x_1 x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_1 \overline x_3 \oplus x_2 x_3 \oplus \overline x_2 \overline x_4 \oplus x_3 x_4 \oplus x_1 x_2 x_4 \oplus x_2 \overline x_3 \overline x_4 \oplus x_1 x_2 \overline x_3 \overline x_4 \oplus x_1 \overline x_2 \overline x_3 \overline x_4 $
+    \item $ x_3 \oplus x_4 \oplus x_1 \overline x_2 \oplus \overline x_1 \overline x_4 \oplus x_1 x_2 \overline x_4 \oplus x_1 x_3 \overline x_4 \oplus x_1 \overline x_3 \overline x_4 \oplus x_1 x_2 x_3 x_4 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_1 \overline x_6 \oplus x_2 x_4 \oplus x_3 x_5 \oplus x_3 x_6 \oplus \overline x_5 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 x_4 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 x_5 \oplus x_2 x_3 \overline x_6 \oplus x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+\end{enumerate}
+
+Результат работы алгоритма на заданных функциях с базисом мощности $ \left| 3^n - 2^n \right| $:
+\begin{enumerate}
+    \item $ x_3 \oplus x_1 \overline x_2 \oplus \overline x_1 \overline x_3 \oplus \overline x_2 \overline x_3 \oplus x_1 \overline x_2 x_3 \oplus \overline x_1 \overline x_2 \overline x_3 $
+    \item $ \overline x_2 \overline x_4 \oplus x_1 \overline x_2 x_3 \oplus x_1 x_3 \overline x_4 \oplus \overline x_1 \overline x_3 \overline x_4 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 \overline x_3 \overline x_4 \oplus x_1 x_2 x_3 x_4 \oplus x_1 x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_1 \overline x_3 \oplus x_2 x_3 \oplus \overline x_2 \overline x_4 \oplus x_3 x_4 \oplus x_1 x_2 x_4 \oplus x_2 \overline x_3 \overline x_4 \oplus x_1 x_2 \overline x_3 \overline x_4 \oplus x_1 \overline x_2 \overline x_3 \overline x_4 $
+    \item $ x_3 \oplus x_4 \oplus x_1 \overline x_2 \oplus \overline x_1 \overline x_4 \oplus x_1 x_2 \overline x_4 \oplus x_1 x_3 \overline x_4 \oplus x_1 \overline x_3 \overline x_4 \oplus x_1 x_2 x_3 x_4 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_1 \overline x_6 \oplus x_3 x_6 \oplus \overline x_5 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 \overline x_6 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 x_5 \oplus x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+\end{enumerate}
+
+Результат работы алгоритма на заданных функциях с базисом мощности $ \left| 4^n - 3^n \right| $:
+\begin{enumerate}
+    \item $ x_3 \oplus \overline x_1 \overline x_3 $
+    \item $ x_1 \overline x_2 x_3 \oplus x_1 x_3 \overline x_4 \oplus \overline x_1 \overline x_3 \overline x_4 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 \overline x_4 \oplus x_1 x_2 x_3 x_4 \oplus x_1 x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_1 \overline x_3 \oplus x_2 x_3 \oplus \overline x_2 \overline x_4 \oplus x_3 x_4 \oplus x_1 x_2 x_4 \oplus x_1 \overline x_2 \overline x_3 \overline x_4 \oplus \overline x_1 x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_3 \oplus x_1 \overline x_2 \oplus x_1 x_2 \overline x_4 \oplus x_1 x_2 x_3 x_4 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 $
+    \item $ x_3 x_6 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 \overline x_6 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 x_5 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+\end{enumerate}
+
+В таблице \ref{table_result} выписаны длины результатов работы алгоритма с использованием разных базисов: построенного на множестве $ \{ 0, 1, x_i \} $, а так же на множестве $ \{ 0, 1, x_i, \overline x_i \} $. Из нее видно, что использование расширенного базиса значительно улучшает качество ответа алгоритма.
+
+Стоит, однако, упомянуть худшую асимптотику по памяти, а так же по времени работы (стоимость одной итерации алгоритма пропорциональна мощности базиса нулевых полиномов).
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |c||c|c| }
+\hline
+тест & $ \left| 3^n - 2^n \right| $ & $ \left| 4^n - 3^n \right| $ \\
+\hline\hline
+1 & 6  & 2  \\
+\hline
+2 & 8  & 7  \\
+\hline
+3 & 8  & 7  \\
+\hline
+4 & 9  & 5  \\
+\hline
+5 & 16 & 10 \\
+\hline
+\end{tabular}
+\caption{Сравнение длин полиномов с применением базисов разных мощностей}
+\label{table_result}
+\end{table}
+
+\subsubsection*{Выбор стратегии последовательности прибавлений}
+
+В текущей реализации алгоритма итерации совершаются "вслепую", то есть при выборе прибавляемого нулевого полинома не используется информация о текущем состоянии сокращаемого полинома. Это приводит к тому, что покоординатный спуск упирается в локальный минимум: алгоритм при неудачном прибавлении каждого полинома из базиса считает, что полином более сократить невозможно и завершает работу. Однако, был найден тест, на котором разные последовательности прибавлений дают качественно разные результаты (программа работала с расширенным базисом).
+~\\
+\texttt{вход}\\
+$ \overline x_1 \overline x_6 \oplus x_2 x_4 \oplus x_3 x_5 \oplus x_3 x_6 \oplus \overline x_5 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 x_4 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 x_5 \oplus x_2 x_3 \overline x_6 \oplus x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+~\\
+последовательность результативных прибавлений, при попытках прибавлять нулевые полиномы в порядке их генерации (1)\\
+$ \overline x_5 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
+$ \overline x_1 \overline x_6 \oplus \overline x_1 x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
+$ x_3 x_5 \oplus x_2 x_3 x_5 \oplus \overline x_2 x_3 x_5 $ \\
+$ x_2 x_4 \oplus x_2 x_3 x_4 \oplus x_2 \overline x_3 x_4 $ \\
+$ x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 x_3 x_5 \overline x_6 $ \\
+$ \overline x_1 x_5 \overline x_6 \oplus \overline x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 x_5 \overline x_6 $ \\
+$ \overline x_1 \overline x_3 \overline x_6 \oplus \overline x_1 \overline x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 $ \\
+$ \overline x_3 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_6 $ \\
+иная последовательность результативных прибавлений (2)\\
+$ x_3 x_5 \oplus x_2 x_3 x_5 \oplus \overline x_2 x_3 x_5 $ \\
+$ \overline x_5 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
+$ x_2 x_3 \oplus x_2 x_3 x_4 \oplus x_2 x_3 \overline x_4 $ \\
+$ x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 x_3 x_5 \overline x_6 $ \\
+$ \overline x_1 \overline x_6 \oplus \overline x_1 x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
+$ x_2 x_3 \oplus x_2 x_3 x_6 \oplus x_2 x_3 \overline x_6 $ \\
+$ \overline x_1 x_5 \overline x_6 \oplus \overline x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 x_5 \overline x_6 $ \\
+$ \overline x_1 \overline x_3 \overline x_6 \oplus \overline x_1 \overline x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 $ \\
+$ x_3 x_6 \oplus x_2 x_3 x_6 \oplus \overline x_2 x_3 x_6 $ \\
+$ \overline x_3 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_6 $ \\
+результат первой последовательности (длина 10):\\
+$ x_3 x_6 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 \overline x_6 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 x_5 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $ \\
+результат второй последовательности (длина 8):\\
+$ x_2 x_4 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus \overline x_2 x_3 x_5 \oplus \overline x_2 x_3 x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+
+Из этого примера следует, что качество работы алгоритма зависит от стратегии обхода нулевых полиномов в попытке сократить ими исходный.
+
+\subsubsection*{Прибавления пар элементов}
+
+Как уже упоминалось, в работе Цутому Сасао \cite{convergence} было представлено доказательство того, что набор исключительно уменьшающих правил может не приводить к точному минимуму при выборе любой последовательности их применения. Это наталкивает на мысль, что покоординатный спуск, принимающий итерацию только в случае удачного сокращения длины полинома также будет обладать этим неприятным свойством.
+
+Идея прибавлять пары нулевых полиномов вместо последовательного прибавления элементов базиса призвана временно (на глубину 1) принять увеличивающее правило, чтобы снабдить алгоритм необходимым условием сходимости из \cite{convergence}.
+
+Однако множественные попытки улучшить результат, используя эту модификацию алгоритма, в том числе в разных комбинационных вариациях с описанными в данном подразделе, привели исключительно к значительному увеличению времени работы программы. Результат работы алгоритма не удалось улучшить ни на одном из проверяемых тестах.
 
 \section{План дальнейших работ}
 
-% планы
+-
 
 \begin{raggedright}
 \addcontentsline{toc}{section}{Литература}
