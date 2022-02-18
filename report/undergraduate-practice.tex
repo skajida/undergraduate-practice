@@ -3,10 +3,12 @@
 \usepackage[english,russian]{babel}
 \usepackage{geometry}
 \usepackage{cmap}
-\usepackage{amsmath}
 
 \geometry{a4paper,left=30mm,top=30mm,bottom=30mm,right=30mm}
 \setcounter{secnumdepth}{0}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
 
 \begin{document}
 
@@ -39,28 +41,50 @@
 
 \section{Введение}
 
-\subsubsection{Минимизация обобщенных полиномов}
+\subsection{Основные определения}
 
-Задача минимизации обобщенных полиномов является активной областью исследований благодаря преимуществам, которыми обладают обобщенные полиномы в сравнении с ДНФ. К ним относятся:
-\begin{itemize}
-    \item отличные свойства тестируемости \cite{exorcism4}
-    \item экспериментально наблюдаемые меньшие размеры выражения
-    \item асимптотически лучшая верхняя оценка на количество конъюнктов ($ 29 \cdot 2^{n - 7}, \ n > 6 $ \cite{bound} против $ 2^{n - 1} $ для ДНФ)
-\end{itemize}
+$ E_k $ --- множество $ \{ 0, 1, \dots, k - 1 \} $ первых $ k $ целых неотрицательных чисел.\\
+Отображение $ f:\ E_2^n \rightarrow E_2 $ назовем булевой функцией от $ n $ переменных.\\
+$ \mathbb{P}_2(n) $ --- множество всех булевых функций от $ n $ переменных.\\
+\textit{Положительный литерал} --- атом (например $ x $)\\
+\textit{Отрицательный литерал} --- отрицание атома (например $ \overline x $)\\
+\textit{Полярность литерала} --- индикатор положительности литерала.\\
+\textit{Элементарная конъюнкция} ранга $ r $ --- это выражение вида $ x_{i_1} \dots x_{i_r} $, куда литералы могут входить и с отрицательной полярностью.\\
+\textit{Обобщенный полином} --- выражение вида $ \bigoplus\limits_{i = 1}^l K_i $, где $ K_i $ --- элементарные конъюнкции.\\
+\textit{Длиной обобщенного полинома} назовем количество элементарных конъюнкций в нем.\\
+$ \mathcal{P}(n) $ --- множество всех обобщенных полиномов от $ n $ переменных.
 
-В задаче нахождения точного минимума обобщенных полиномов до сих пор не найдено эффективного решения для булевых функций более шести переменных в общем случае \cite{exact}, поэтому особый интерес представляет эвристический подход к минимизации обобщенных полиномов.
+\subsection{Задача минимизации обобщенных полиномов}
+
+Поскольку не существует взаимнооднозначного соответствия между $ \mathcal{P}(n) $ и $ \mathbb{P}_2(n) $, задача минимизации обобщенных полиномов является активной областью исследований. Интерес представляют преимущества, которыми обладают обобщенные полиномы в сравнении с ДНФ. С практической точки зрения можно выделить экспериментально наблюдаемые меньшие размеры выражения (для функции стоимости, равной количеству конъюнктов в выражении).
+
+Эта метрическая характеристика приводит к тому, что в производстве цифровых схем на базе логических вентилей \textsc{AND} и \textsc{XOR} уменьшены площадь схемы и время отклика в сравнении со схемами на базе \textsc{AND} и \textsc{OR}. Текущее применение \textsc{AND-EXOR} выражений заключается в синтезе таких схем, как обратимые логические \cite{reversible} и квантовые \cite{quantum}.
+
+Рассмотрим некоторые характеристики такого представления.\\
+Для $ P \in \mathcal{P}(n) $ обозначим длину полинома $ l(P) $. Введем функционал
+$$ l(f) = \min\limits_{P_f \in \mathcal{P}_f} l(P_f), $$
+обозначающай минимальную длину обобщенного полинома среди всех, реализующих булеву функцию $ f $. Функцией Шеннона сложности в классе обобщенных полиномов называется функция
+$$ L_\text{о.п.} = \max\limits_{f \in \mathbb{P}_2(n)} l(f). $$
+
+Существуют верхняя и нижняя оценки для функции Шеннона в классе обобщенных полиномов, представим их \cite{selezn}:
+$$ L_\text{о.п.} \ge \frac{2^n}{n \log_2 3} $$
+$$ L_\text{о.п.}(n) \le 2 \cdot \frac{2^n}{n} (1 + \ln n) $$
+
+Некоторые исследователи предлагают алгоритмы, находящие точный полиномиальный минимум \cite{min-tau} \cite{exact6} \cite{exact}, однако до сих пор не был найден эффективный метод решения таким образом поставленной задачи для булевых функций более восьми переменных в общем случае \cite{exact8}, поэтому особый интерес представляет эвристический подход к минимизации обобщенных полиномов.
+
+Научным сообществом было предложено множество достойно себя зарекомендовавших эвристических алгоритмов минимизации, не гарантирующих минимальности полученного в качестве результата полинома. Примерами могут служить алгоритмы Сасао \cite{exmin2}, Стергиу-Вудурис-Папаконстантину \cite{mvesopmin}, Мищенко-Перковски \cite{exorcism4}.
 
 Также, помимо рассмотрения самих алгоритмов, интересны способы их тестирования и сравнения. Большинство статей \cite{exmin2} \cite{mint} \cite{exorcism4}, предлагающих эвристические подходы к решению данной задачи, содержат в себе раздел, посвященный результатам экспериментов, в котором используется много функций из бенчмарка LGSynth \cite{benchmark}.
 
-В рамках данной работы продолжает исследоваться дискретный аналог покоординатного спуска с прибавлением нулевых обобщенных полиномов к исходному.
+В рамках данной работы продолжает исследоваться метод дискретного аналога покоординатного спуска с прибавлением нулевых обобщенных полиномов к исходному.
 
-\subsubsection{Метод прибавления нулевых полиномов}
+\subsection{Метод прибавления нулевых полиномов}
 
-Задан исходный обобщенный полином в виде $ \bigoplus\limits_i K_i $, где $ K_i $ --- элементарные конъюнкции.
+Задан исходный обобщенный полином в виде $ \bigoplus\limits_i K_i $.
 
-Генерация базиса нулевых обобщенных полиномов происходит следующим образом: представим себе элементарную конъюнкцию из $ n $ множителей. На позиции i-того литерала выставим один из трех элементов множества $ \{ 0, 1, x_i \} $. Очевидно, что конъюнкция тождественно равна 0 тогда и только тогда, когда на месте хотя бы одного литерала выставлен 0. Пусть на места всех $ n $ литералов выставлены элементы описанного множества, при этом хотя бы один из них равен 0, тогда в силу дистрибутивности конъюнкции относительно исключающего или можно раскрыть скобки и получить выражение являющееся, в силу тождественного равенства нулю, нулевым обобщенным полиномом. Весь базис нулевых полиномов, построенный на множестве $ \{ 0, 1, x_i \} $ будет состоять из $ 3^n $ (всех вариантов расстановки элементов множества на $ n $ позиций) минус $ 2^n $ (всех вариантов расстановки элементов $ \{ 1, x_i \} $ на $ n $ позиций, поскольку выставив исключительно элементы данного подмножества на места литералов выражение не будет удовлетворять необходимому условию тождественного равенства 0). Итого, мощность базиса $ \left| B \right| = 3^n - 2^n. $
+Генерация базиса нулевых обобщенных полиномов происходит следующим образом: представим себе элементарную конъюнкцию из $ n $ множителей. На позиции i-того литерала выставим один из трех элементов множества $ \{ 0, 1, x_i \} $. Очевидно, что конъюнкция тождественно равна 0 тогда и только тогда, когда на месте хотя бы одного литерала выставлен 0. Пусть на места всех $ n $ литералов выставлены элементы описанного множества, при этом хотя бы один из них равен $ 0 \equiv x_i \oplus \overline x_i $, тогда в силу дистрибутивности конъюнкции относительно исключающего или можно раскрыть скобки и получить выражение являющееся, в силу тождественного равенства нулю, нулевым обобщенным полиномом. Весь базис нулевых полиномов, построенный на множестве $ \{ 0, 1, x_i \} $ будет состоять из $ 3^n $ (всех вариантов расстановки элементов множества на $ n $ позиций) минус $ 2^n $ (всех вариантов расстановки элементов $ \{ 1, x_i \} $ на $ n $ позиций, поскольку выставив исключительно элементы данного подмножества на места литералов выражение не будет удовлетворять необходимому условию тождественного равенства 0). Итого, мощность базиса $ \left| B \right| = 3^n - 2^n. $
 
-После генерации базиса нулевых обобщенных полиномов его элементы по некоторой стратегии прибавляются к исходному обобщенному полиному. В силу тождественного равенства нулю всех элементов базиса функция, задаваемая выражением до прибавления, совпадает с функцией, задаваемой результатом сложения (поскольку $ a \oplus 0 \equiv a $). В рамках отдельной итерации прибавления возможны сокращения вида $ a \oplus a \equiv 0 $, которые приведут к уменьшению длины (количества конъюнктов в выражении) выражения.
+После генерации базиса нулевых обобщенных полиномов его элементы по некоторой стратегии прибавляются к исходному обобщенному полиному. В силу тождественного равенства нулю всех элементов базиса функция, задаваемая выражением до прибавления, совпадает с функцией, задаваемой результатом сложения (поскольку $ a \oplus 0 \equiv a $). В рамках отдельной итерации прибавления возможны сокращения вида $ a \oplus a \equiv 0 $, которые приведут к уменьшению длины выражения. Прибавление подтверждается в случае уменьшения длины полинома, работа алгоритма продолжается, пока удается сокращать полином.
 
 Алгоритм возвращает сокращенный обобщенный полином в виде $ \bigoplus\limits_i K_i $.
 
@@ -78,10 +102,10 @@
 
 Проанализировать предложенный метод следующими критериями:
 \begin{itemize}
-    \item существование не оптимизирующихся полиномов, которые могут быть записаны в более коротком виде
-    \item возможность улучшить результат путем расширения базиса нулевых полиномов
-    \item возможность улучшить результат путем пробы разных стратегий прибавления элементов базиса
-    \item возможность улучшить результат путем прибавления пар элементов базиса
+    \item доказать или опровергнуть существование не оптимизирующихся полиномов, которые могут быть записаны в более коротком виде
+    \item проверить гипотезу улучшения результата путем расширения базиса нулевых полиномов
+    \item проверить гипотезу улучшения результата путем пробы разных стратегий прибавления элементов базиса
+    \item проверить гипотезу улучшения результата путем прибавления пар элементов базиса
 \end{itemize}
 
 \section{Полученные результаты}
@@ -175,7 +199,7 @@ LGSynth --- бенчмарк, разработанный для логическ
 
 \subsubsection{Некоторая выжимка}
 
-В таблице \ref{table_benchmark} показаны некоторые результаты (количества конъюнктов по окончании работы алгоритма) минимизации функций опубликованными эвристическими алгоритмами.
+В таблице \ref{table_benchmark} показаны некоторые результаты (количества конъюнктов по окончании работы алгоритма) минимизации функций опубликованными эвристическими алгоритмами на некоторых тестах бенчмарка LGSynth и арифметических функциях.
 
 \begin{table}[h!]
 \centering
@@ -196,14 +220,14 @@ LGSynth --- бенчмарк, разработанный для логическ
 \texttt{clip}   & 9  & 5  & 63 & 67 & 64 & 68 & – \\
 \hline
 \texttt{m181}   & 15 & 9  & 29 & 29 & 29 & 29 & – \\
+\hline
+\texttt{sqrt8}  & 8  & 4  & 17 & –  & –  & –  & 17 \\
 \hline\hline
 \texttt{adr4}   & 8  & 5  & –  & 31 & –  & –  & – \\
 \hline
 \texttt{log8}   & 8  & 8  & –  & 96 & –  & –  & – \\
 \hline
 \texttt{mlp3}   & 6  & 6  & –  & –  & –  & 18 & 18 \\
-\hline
-\texttt{sqrt8}  & 8  & 4  & 17 & –  & –  & –  & 17 \\
 \hline
 \texttt{inc8}   & 8  & 9  & –  & 15 & –  & –  & 15 \\
 \hline
@@ -212,7 +236,7 @@ LGSynth --- бенчмарк, разработанный для логическ
 \label{table_benchmark}
 \end{table}
 
-В силу особенности алгоритма \texttt{min-tau2} для него были выбраны специфичные бенчмарки в оригинальной работе \cite{min-tau2}, поэтому в таблице \ref{table_benchmark} стоит много прочерков для этого алгоритма. Приведем небольшую таблицу \ref{table_mintau} сравнения \texttt{min-tau2} с \textsc{EXMIN2} на некоторых арифметических тестах.
+В силу особенности алгоритма \texttt{min-tau2}, для него были выбраны специфичные бенчмарки в оригинальной работе \cite{min-tau2}, поэтому в таблице \ref{table_benchmark} стоит много прочерков для этого алгоритма. Приведем небольшую таблицу \ref{table_mintau} сравнения \texttt{min-tau2} с \textsc{EXMIN2} на некоторых арифметических тестах.
 
 \begin{table}[h!]
 \centering
@@ -250,12 +274,14 @@ LGSynth --- бенчмарк, разработанный для логическ
     \item $ x_1 x_2 x_4 \overline x_5 \oplus \overline x_2 \overline x_3 x_4 \overline x_5 \oplus \overline x_1 x_2 x_3 x_4 x_5 \oplus \overline x_1 x_2 x_3 x_4 \overline x_6 \oplus x_2 x_3 x_4 \overline x_5 x_6 \oplus x_1 x_2 x_3 x_4 x_5 x_6 \oplus x_1 x_2 x_3 x_4 \overline x_5 \overline x_6 $
 \end{enumerate}
 
-Ни один из этих полиномов не сокращается ни одним из, в том числе описанных ниже, методов. Однако они представимы соответственно в более коротких формах:
+Ни один из этих полиномов не сокращается ни оригинальным алгоритмом, ни алгоритмом с использованием любой комбинации из ниже описанных методов. Однако они представимы соответственно в более коротких формах:
 \begin{enumerate}
     \item $ x_1 x_2 x_4 \oplus x_1 x_3 x_5 $
     \item $ x_1 x_2 x_4 \oplus x_1 \overline x_3 x_4 \oplus \overline x_1 x_2 x_4 x_5 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 \oplus \overline x_1 x_3 x_4 x_5 $
     \item $ x_1 x_2 x_4 \overline x_5 \oplus x_2 x_3 x_4 x_6 \oplus \overline x_2 \overline x_3 x_4 \overline x_5 \oplus x_2 x_3 x_4 \overline x_5 \overline x_6 $
 \end{enumerate}
+
+Также к несокращаемым данным методом отнесся один из часто встречаемых в научных исследований single-output тест из бенчмарка LGSynth: \texttt{9sym}.
 
 \subsubsection{Расширение базиса нулевых полиномов}
 
@@ -311,6 +337,15 @@ LGSynth --- бенчмарк, разработанный для логическ
 \label{table_result}
 \end{table}
 
+Обратим внимание на то, что для всех тестов, кроме первого, удалось обнаружить более короткие представления в сравнении с возвращаемыми алгоритмом на расширенном базисе решениями:
+\begin{enumerate}
+    \item $ \overline x_1 \oplus x_1 x_3 $
+    \item $ x_1 x_3 \oplus x_2 \overline x_3 \oplus \overline x_1 \overline x_2 \overline x_4 $
+    \item $ x_3 \oplus x_1 x_2 x_4 \oplus \overline x_1 \overline x_3 x_4 \oplus x_2 x_3 x_4 $
+    \item $ x_1 \oplus \overline x_3 \oplus x_1 x_2 \overline x_3 x_4 \oplus \overline x_1 \overline x_2 \overline x_3 \overline x_4 $
+    \item $ \overline x_2 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 \overline x_5 \oplus x_2 x_3 x_4 \overline x_5 \oplus x_2 \overline x_3 x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+\end{enumerate}
+
 \subsubsection{Выбор стратегии последовательности прибавлений}
 
 В текущей реализации алгоритма итерации совершаются "вслепую", то есть при выборе прибавляемого нулевого полинома не используется информация о текущем состоянии сокращаемого полинома. Это приводит к тому, что покоординатный спуск упирается в локальный минимум: алгоритм при неудачном прибавлении каждого полинома из базиса считает, что полином более сократить невозможно и завершает работу. Однако, был найден тест, на котором разные последовательности прибавлений дают качественно разные результаты (программа работала с расширенным базисом).
@@ -318,7 +353,7 @@ LGSynth --- бенчмарк, разработанный для логическ
 \texttt{вход}\\
 $ \overline x_1 \overline x_6 \oplus x_2 x_4 \oplus x_3 x_5 \oplus x_3 x_6 \oplus \overline x_5 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 x_4 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 x_5 \oplus x_2 x_3 \overline x_6 \oplus x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
 ~\\
-последовательность результативных прибавлений, при попытках прибавлять нулевые полиномы в порядке их генерации (1)\\
+последовательность результативных прибавлений с траекторией попыток прибавления, совпадающей с порядком их генерации \texttt{(1)}\\
 $ \overline x_5 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
 $ \overline x_1 \overline x_6 \oplus \overline x_1 x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
 $ x_3 x_5 \oplus x_2 x_3 x_5 \oplus \overline x_2 x_3 x_5 $ \\
@@ -327,7 +362,7 @@ $ x_3 x_5 \overline x_6 \oplus x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 x_
 $ \overline x_1 x_5 \overline x_6 \oplus \overline x_1 x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 x_5 \overline x_6 $ \\
 $ \overline x_1 \overline x_3 \overline x_6 \oplus \overline x_1 \overline x_3 x_5 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_5 \overline x_6 $ \\
 $ \overline x_3 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus \overline x_1 \overline x_3 \overline x_6 $ \\
-иная последовательность результативных прибавлений (2)\\
+иная последовательность результативных прибавлений \texttt{(2)}\\
 $ x_3 x_5 \oplus x_2 x_3 x_5 \oplus \overline x_2 x_3 x_5 $ \\
 $ \overline x_5 \overline x_6 \oplus x_1 \overline x_5 \overline x_6 \oplus \overline x_1 \overline x_5 \overline x_6 $ \\
 $ x_2 x_3 \oplus x_2 x_3 x_4 \oplus x_2 x_3 \overline x_4 $ \\
@@ -341,15 +376,17 @@ $ \overline x_3 \overline x_6 \oplus x_1 \overline x_3 \overline x_6 \oplus \ove
 результат первой последовательности (длина 10):\\
 $ x_3 x_6 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 x_3 \overline x_4 \oplus x_2 x_3 \overline x_6 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 x_5 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $ \\
 результат второй последовательности (длина 8):\\
-$ x_2 x_4 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus \overline x_2 x_3 x_5 \oplus \overline x_2 x_3 x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
+$ x_2 x_4 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus \overline x_2 x_3 x_5 \oplus \overline x_2 x_3 x_6 \oplus x_2 x_3 x_4 x_5 \oplus x_2 \overline x_3 \overline x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $ \\
+предложенное представление (длина 7):\\
+$ \overline x_2 \overline x_6 \oplus \overline x_1 x_2 \overline x_3 \oplus x_2 \overline x_3 x_4 \oplus \overline x_2 x_3 \overline x_5 \oplus x_2 x_3 x_4 \overline x_5 \oplus x_2 \overline x_3 x_5 \overline x_6 \oplus x_1 \overline x_2 x_3 \overline x_4 x_5 \overline x_6 $
 
 Из этого примера следует, что качество работы алгоритма зависит от стратегии обхода нулевых полиномов в попытке сократить ими исходный.
 
 \subsubsection{Прибавления пар элементов}
 
-Как уже упоминалось, в работе Цутому Сасао \cite{convergence} было представлено доказательство того, что набор исключительно уменьшающих правил может не приводить к точному минимуму при выборе любой последовательности их применения. Это наталкивает на мысль, что покоординатный спуск, принимающий итерацию только в случае удачного сокращения длины полинома также будет обладать этим неприятным свойством.
+Как уже упоминалось, в работе Цутому Сасао \cite{convergence} было представлено доказательство того, что набор исключительно уменьшающих правил может не приводить к точному минимуму при любом выборе последовательности их применения. Это наталкивает на мысль, что покоординатный спуск, принимающий итерацию только в случае удачного сокращения длины полинома также будет обладать этим нежелательным свойством.
 
-Идея прибавлять пары нулевых полиномов вместо последовательного прибавления элементов базиса призвана временно (на глубину 1) принять увеличивающее правило, чтобы снабдить алгоритм необходимым условием сходимости из \cite{convergence}.
+Идея прибавлять пары нулевых полиномов вместо последовательного прибавления элементов базиса призвана временно (на глубину 1) принять увеличивающее правило, чтобы снабдить алгоритм необходимым условием сходимости набора правил из \cite{convergence}.
 
 Однако множественные попытки улучшить результат, используя эту модификацию алгоритма, в том числе в разных комбинационных вариациях с описанными в данном подразделе, привели исключительно к значительному увеличению времени работы программы. Результат работы алгоритма не удалось улучшить ни на одном из проверяемых тестах.
 
@@ -357,13 +394,13 @@ $ x_2 x_4 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline 
 
 Были озвучены подходы к оцениванию качества работы алгоритма, решающего задачу минимизации обобщенных полиномов на примере нескольких предложенных научным сообществом эвристических методов.
 
-Была написана программа для нахождения потенциальных возможностей развития подхода к эвристическому сжатию обобщенного полинома методом прибавления нулевых полиномов. Оправдали свое рассмотрение следующие модификации:
+Была написана программа для нахождения потенциальных возможностей развития подхода к эвристическому сжатию обобщенного полинома методом прибавления нулевых полиномов. Оправдали свое рассмотрение с точки зрения улучшения результата работы алгоритма следующие модификации:
 \begin{itemize}
     \item расширение базиса нулевых полиномов путем добавления дополнительного потенциального множителя в процессе генерации
     \item изменение стратегии обхода нулевых полиномов в попытке сократить им исходный путем прибавления
 \end{itemize}
 
-Не принес практической пользы подход с прибавлением пар нулевых полиномов. Однако, в соответствии с \cite{convergence}, необходимым условием сходимости эвристического алгоритма к точному минимуму является наличие <<раздувающего>> полином правила. Использование пар может оказаться эффективнее как с точки зрения производительности, так и результата работы алгоритма, если детерминировать порядок их выбора.
+Не принес практической пользы подход с прибавлением пар нулевых полиномов. Однако, в соответствии с \cite{convergence}, необходимым условием сходимости эвристического алгоритма к точному минимуму является наличие <<раздувающего>> полином правила. Использование пар может оказаться эффективнее с точки зрения результата работы алгоритма, если детерминировать порядок их выбора.
 
 \section{План дальнейших работ}
 
@@ -372,16 +409,21 @@ $ x_2 x_4 \oplus \overline x_3 \overline x_6 \oplus \overline x_1 x_2 \overline 
 \begin{raggedright}
 \addcontentsline{toc}{section}{Литература}
 \begin{thebibliography}{99}
-    \bibitem{exorcism4} Mishchenko~A., Perkowski~M. Fast heuristic minimization of exclusive-sums-of-products. – 2001.
-    \bibitem{bound} Gaidukov~A. Algorihm to derive minimum ESOP for 6-variable function //5th International Workshop on Boolean Problems, Sept.~2002. – 2002.
-    \bibitem{exact} Sasao~T. An exact minimization of AND-EXOR expressions using reduced covering functions //Proc. of the Synthesis and Simulation Meeting and International Interchange. – 1993. – С.~374-383.
+    \bibitem{selezn} Селезнева~С., Шуплецов~М., Дайняк~А. Булевы функции и полиномы// Москва – 2006
+    \bibitem{complexity} Sasao~T., Besslich~P. On the complexity of mod-2l sum PLA's //IEEE Transactions on Computers. – 1990. – Т.~39. – №.~2. – С.~262-266.
+    \bibitem{reversible} Yang~G. et al. Majority-based reversible logic gates //Theoretical computer science. – 2005. – Т.~334. – №.~1-3. – С.~259-274.
+    \bibitem{quantum} Iwama~K., Kambayashi~Y., Yamashita~S. Transformation rules for designing CNOT-based quantum circuits //Proceedings of the 39th annual Design Automation Conference. – 2002. – С.~419-424.
     \bibitem{exmin2} Sasao~T. EXMIN2: A simplification algorithm for exclusive-OR-sum-of-products expressions for multiple-valued-input two-valued-output functions //IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems. – 1993. – Т.~12. – №.~5. – С.~621-632.
+    \bibitem{exorcism4} Mishchenko~A., Perkowski~M. Fast heuristic minimization of exclusive-sums-of-products. – 2001.
     \bibitem{mint} Kozlowski~T. Application of exclusive-OR logic in technology independent logic optimization //PhD Thesis, Bristol University. – 1996.
-    \bibitem{benchmark} Yang~S. Logic synthesis and optimization benchmarks user guide: version 3.0. – Research Triangle Park, NC, USA : Microelectronics Center of North Carolina (MCNC), 1991. – С.~502-508.
     \bibitem{grmin2} Debnath~D., Sasao~T. GRMIN2: A heuristic simplification algorithm for generalised Reed-Muller expressions //IEE Proceedings-Computers and Digital Techniques. – 1996. – Т.~143. – №.~6. – С.~376-384.
+    \bibitem{benchmark} Yang~S. Logic synthesis and optimization benchmarks user guide: version 3.0. – Research Triangle Park, NC, USA : Microelectronics Center of North Carolina (MCNC), 1991. – С.~502-508.
+    \bibitem{exact} Sasao~T. An exact minimization of AND-EXOR expressions using reduced covering functions //Proc. of the Synthesis and Simulation Meeting and International Interchange. – 1993. – С.~374-383.
+    \bibitem{exact6} Gaidukov~A. Algorihm to derive minimum ESOP for 6-variable function //5th International Workshop on Boolean Problems, Sept.~2002. – 2002.
+    \bibitem{exact8} Stergiou~S., Papakonstantinou~G. Exact minimization of ESOP expressions with less than eight product terms //Journal of Circuits, Systems, and Computers. – 2004. – Т.~13. – №.~01. – С.~1-15.
     \bibitem{min-tau} Hirayama~T., Nishitani~Y., Sato~T. A faster algorithm of minimizing AND-EXOR expressions //IEICE transactions on fundamentals of electronics, communications and computer sciences. – 2002. – Т.~85. – №.~12. – С.~2708-2714.
     \bibitem{min-tau2} Hirayama~T., Nishitani~Y. Exact minimization of and-exor expressions of practical benchmark functions //Journal of Circuits, Systems, and Computers. – 2009. – Т.~18. – №.~03. – С.~465-486.
-    \bibitem{arithmetic} Sasao~T. Multiple-valued logic and optimization of programmable logic arrays //Computer. – 1988. – Т.~21. – №.~4. – С.~71-80.
+    \bibitem{mvesopmin} Stergiou~S., Voudouris~D., Papakonstantinou G. Multiple-value exclusive-or sum-of-products minimization algorithms //IEICE TRANSACTIONS on Fundamentals of Electronics, Communications and Computer Sciences. – 2004. – Т.~87. – №.~5. – С.~1226-1234.
     \bibitem{psdrm} Sasao~T. AND-EXOR expressions and their optimization //Logic synthesis and optimization. – Springer, Boston, MA, 1993. – С.~287-312.
     \bibitem{convergence} Brand~D., Sasao~T. Minimization of AND-EXOR expressions using rewrite rules //IEEE Transactions on Computers. – 1993. – Т.~42. – №.~5. – С.~568-576.
 \end{thebibliography}
