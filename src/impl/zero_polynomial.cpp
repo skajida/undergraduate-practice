@@ -21,28 +21,20 @@ std::vector<TPolynomial> generateZeroBasis(uint32_t dimension, EMode expand) {
     );
 
     std::vector<TPolynomial> result;
-    if (expand == EMode::Negative) {
-        result.reserve(binpow(4, dimension) - binpow(3, dimension));
-    } else {
-        result.reserve(binpow(3, dimension) - binpow(2, dimension));
-    }
+    bool mask = expand == EMode::Negative;
+    result.reserve(binpow(3 + mask, dimension) - binpow(2 + mask, dimension));
     for (uint32_t i = 0; i < dimension; ++i) {
         for (uint32_t j = 0; j < dimension - i; ++j) {
-            for (uint32_t l = 0; l < (expand == EMode::Negative ? dimension - i - j : 1); ++l) {
+            for (uint32_t l = 0; l < (mask ? dimension - i - j : 1); ++l) {
                 std::vector<EMode> permutation;
                 permutation.reserve(dimension);
                 auto back_insert_iterator = std::back_inserter(permutation);
                 std::fill_n(back_insert_iterator, i + 1, EMode::Zero);
-                std::fill_n(back_insert_iterator, dimension - i - 1 - j - (expand == EMode::Negative) * l, EMode::One);
+                std::fill_n(back_insert_iterator, dimension - i - 1 - j - mask * l, EMode::One);
                 std::fill_n(back_insert_iterator, j, EMode::Positive);
-                if (expand == EMode::Negative) {
-                    std::fill_n(back_insert_iterator, l, EMode::Negative);
-                }
+                std::fill_n(back_insert_iterator, mask * l, EMode::Negative);
                 do {
-                    TPolynomial polynomial(
-                        dimension,
-                        { TElementaryConjuction(dimension, { { 0, EState::Positive } }) }
-                    );
+                    TPolynomial polynomial = multiplierOne;
 
                     for (uint32_t k = 0; k < dimension; ++k) {
                         TPolynomial multiplierZero(
@@ -74,7 +66,6 @@ std::vector<TPolynomial> generateZeroBasis(uint32_t dimension, EMode expand) {
                             break;
                         case EMode::Negative:
                             polynomial = polynomial * multiplierNegative;
-                            break;
                         default:
                             break;
                         }
