@@ -11,14 +11,11 @@ int main() {
     TPolynomial polynomial(dimension);
     std::cin >> polynomial;
 
-    std::vector<TPolynomial> zeroBasis = generateZeroBasis(polynomial.dimension(), EMode::Positive);
-    for (TPolynomial it : zeroBasis) {
-        std::cerr << it << '\n';
-    }
+    std::vector<TPolynomial> zeroBasis = generateZeroBasis(polynomial.dimension(), EMode::Negative);
     TCoordinateDescentMinimizer minimizer(
         polynomial,
         zeroBasis,
-        {.pairs=false, .randomize=true, .seed=0}
+        {.pairs=true, .randomize=false, .seed=time(0)}
     );
     TPolynomial shrunk = minimizer.execute();
 
